@@ -1,0 +1,59 @@
+# Runs the Starlink uptime monitor on a schedule.
+#
+# Setup:
+#   1. Edit `targets.yaml` with the hosts/IPs to watch.
+#   2. Repo Settings -> Secrets and variables -> Actions, add:
+#        TELEGRAM_BOT_TOKEN  (from @BotFather)
+#        TELEGRAM_CHAT_ID    (your chat or group id; get it from @userinfobot)
+#   3. Repo Settings -> Actions -> General -> Workflow permissions:
+#      set "Read and write permissions" so the job can commit state back.
+#
+# Cron grain on GitHub-hosted runners is 5 minutes minimum and runs can be
+# delayed under heavy load.
+
+name: starlink-uptime
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: starlink-uptime
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: claude/starlink-uptime-monitoring-4eEcl
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - run: pip install -r requirements.txt
+
+      - name: Run monitor
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python monitor.py
+
+      - name: Persist state
+        run: |
+          if [[ -n "$(git status --porcelain state.json)" ]]; then
+            git config user.name "starlink-uptime-bot"
+            git config user.email "starlink-uptime-bot@users.noreply.github.com"
+            git add state.json
+            git commit -m "chore: update monitor state"
+            git push
+          else
+            echo "No state change."
+          fi

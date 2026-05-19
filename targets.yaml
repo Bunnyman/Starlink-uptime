@@ -1,0 +1,22 @@
+# Starlink uptime monitor configuration.
+# Add one entry per Starlink to watch. `host` may be an IP or hostname.
+# Optional `port` switches that target from ICMP ping to TCP connect on that port
+# (useful when ICMP is blocked but a known service is exposed).
+
+targets:
+  - name: Site A
+    host: 1.2.3.4
+  - name: Site B
+    host: starlink-b.example.com
+  # - name: Site C (HTTPS-only)
+  #   host: 5.6.7.8
+  #   port: 443
+
+settings:
+  # Pings per check (ICMP only). At least one reply = up.
+  ping_count: 3
+  # Per-attempt timeout in seconds (ICMP and TCP).
+  timeout_seconds: 5
+  # Consecutive failed checks before firing a "down" alert.
+  # With a 5-minute cron, threshold 2 = alert after ~10 min of downtime.
+  failure_threshold: 2
