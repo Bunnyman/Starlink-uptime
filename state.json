@@ -1,14 +1,14 @@
 {
   "Site A": {
     "alerted_down": true,
-    "consecutive_failures": 2723,
-    "last_fail": "2026-08-20T10:44:04+00:00",
+    "consecutive_failures": 2724,
+    "last_fail": "2026-08-20T11:11:11+00:00",
     "last_up": null
   },
   "Site B": {
     "alerted_down": true,
-    "consecutive_failures": 2723,
-    "last_fail": "2026-08-20T10:44:04+00:00",
+    "consecutive_failures": 2724,
+    "last_fail": "2026-08-20T11:11:11+00:00",
     "last_up": null
   }
 }
